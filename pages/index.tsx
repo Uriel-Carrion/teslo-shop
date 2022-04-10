@@ -1,11 +1,14 @@
 import { Typography } from "@mui/material";
 import { NextPage } from "next";
 import React from "react";
+import { FullScreenLoading } from "../components/ui";
 import { ShopLayout } from "../components/layouts/ShopLayout";
 import { ProductList } from "../components/products";
-import { initialData } from "../database/products";
+import { useProducts } from "../hooks";
 
 const Home: NextPage = () => {
+  const { products, isLoading } = useProducts("/products");
+
   return (
     <ShopLayout
       title="Tesla - Shop - Home"
@@ -18,7 +21,7 @@ const Home: NextPage = () => {
         Todos los productos
       </Typography>
 
-      <ProductList products={initialData.products} />
+      {isLoading ? <FullScreenLoading /> : <ProductList products={products} />}
     </ShopLayout>
   );
 };
