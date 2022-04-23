@@ -1,12 +1,11 @@
-import React from "react";
-import { NextPage } from "next";
-import { GetStaticPaths, GetStaticProps } from "next";
+import React, { useState } from "react";
+import { useRouter } from "next/router";
+import { GetStaticPaths, GetStaticProps, NextPage } from "next";
 import { Box, Button, Chip, Grid, Typography } from "@mui/material";
 import { ShopLayout } from "../../components/layouts";
 import { ProductSlideshow, SizeSelector } from "../../components/products";
 import { ItemCounter } from "../../components/ui";
-import { useRouter } from "next/router";
-import { IProduct } from "../../interfaces";
+import { IProduct, ICartProduct, ISize } from "../../interfaces";
 import { dbProducts } from "../../database";
 
 interface Props {
@@ -16,9 +15,37 @@ interface Props {
 const ProductPage: NextPage<Props> = ({ product }) => {
   const router = useRouter();
 
-  // const { products: product, isLoading } = useProducts(
-  //   `/products/${router.query.slug}`
-  // );
+  const [temCartProduct, setTemCartProduct] = useState<ICartProduct>({
+    _id: product._id,
+    images: product.images[0],
+    price: product.price,
+    size: undefined,
+    slug: product.slug,
+    title: product.title,
+    gender: product.gender,
+    quantity: 1,
+  });
+
+  const selectedSize = (size: ISize) => {
+    setTemCartProduct((currentProduct) => ({
+      ...currentProduct,
+      size,
+    }));
+  };
+
+  const onUpdateQuantity = (quantity: number) => {
+    setTemCartProduct((currentProduct) => ({
+      ...currentProduct,
+      quantity,
+    }));
+  };
+
+  const onAddProduct = () => {
+    if (!temCartProduct.size) return;
+
+    //Llamar la acción del context para agregar al carrito
+    router.push("/cart");
+  };
 
   return (
     <ShopLayout title={product.title} pageDescription={product.description}>
@@ -42,21 +69,40 @@ const ProductPage: NextPage<Props> = ({ product }) => {
             {/* Cantidad.. */}
             <Box sx={{ my: 2 }}>
               <Typography variant="subtitle2">Cantidad:</Typography>
-              {/* ItemCounter */}
-              <ItemCounter />
-              <SizeSelector
-                // selectedSize={product.sizes[0]}
 
+              {/* ItemCounter */}
+              <ItemCounter
+                currentValue={temCartProduct.quantity}
+                updatedQuantity={onUpdateQuantity}
+                maxValue={product.inStock > 10 ? 10 : product.inStock}
+              />
+
+              {/* SizeSelector */}
+              <SizeSelector
                 sizes={product.sizes}
+                selectedSize={temCartProduct.size}
+                onSelectedSize={selectedSize}
               />
             </Box>
 
-            {/* Agregar al carrito */}
-            <Button color="secondary" className="circular-btn">
-              Agregar al carrito
-            </Button>
-
-            {/* <Chip label="No hay disponibles" color="error" variant="outlined" /> */}
+            {/* Agregar al carrito si hay disponible*/}
+            {product.inStock > 0 ? (
+              <Button
+                color="secondary"
+                className="circular-btn"
+                onClick={onAddProduct}
+              >
+                {temCartProduct.size
+                  ? " Agregar al carrito "
+                  : "Seleccione una talla"}
+              </Button>
+            ) : (
+              <Chip
+                label="No hay disponibles"
+                color="error"
+                variant="outlined"
+              />
+            )}
 
             {/* Descripción */}
             <Box sx={{ my: 3 }}>
