@@ -1,17 +1,39 @@
+import { useContext } from "react";
 import NextLink from "next/link";
-import { CardContent, Divider, Grid, Link, Typography } from "@mui/material";
-import { Box, Button, Card } from "@mui/material";
+
+import { Link, Box, Button, Card, CardContent } from "@mui/material";
+import { Divider, Grid, Typography } from "@mui/material";
+
+import { CartContext } from "../../context";
+import { ShopLayout } from "../../components/layouts/ShopLayout";
 import { CardList, OrderSummary } from "../../components/cart";
-import { ShopLayout } from "../../components/layouts";
+import { countries } from "../../utils";
 
 const SummaryPage = () => {
+  const { shippingAddress, numberOfItems } = useContext(CartContext);
+
+  if (!shippingAddress) {
+    return <></>;
+  }
+
+  const {
+    firstName,
+    lastName,
+    address,
+    address2 = "",
+    city,
+    country,
+    phone,
+    zip,
+  } = shippingAddress;
+
   return (
     <ShopLayout
-      title="Resumen de la orden"
-      pageDescription="Resumen de la orden"
+      title="Resumen de orden"
+      pageDescription={"Resumen de la orden"}
     >
       <Typography variant="h1" component="h1">
-        Carrito
+        Resumen de la orden
       </Typography>
 
       <Grid container>
@@ -21,8 +43,10 @@ const SummaryPage = () => {
         <Grid item xs={12} sm={5}>
           <Card className="summary-card">
             <CardContent>
-              <Typography variant="h2">Resumen (3 productos)</Typography>
-
+              <Typography variant="h2">
+                Resumen ({numberOfItems}{" "}
+                {numberOfItems === 1 ? "producto" : "productos"})
+              </Typography>
               <Divider sx={{ my: 1 }} />
 
               <Box display="flex" justifyContent="space-between">
@@ -34,22 +58,32 @@ const SummaryPage = () => {
                 </NextLink>
               </Box>
 
-              <Typography>Uriel</Typography>
-              <Typography>sdsdsddsd</Typography>
-              <Typography>sdsdsddsd</Typography>
-              <Typography>México</Typography>
-              <Typography>84984984</Typography>
+              <Typography>
+                {firstName} {lastName}
+              </Typography>
+              <Typography>
+                {address}
+                {address2 ? `, ${address2}` : ""}{" "}
+              </Typography>
+              <Typography>
+                {city}, {zip}
+              </Typography>
+              <Typography>
+                {countries.find((c) => c.code === country)?.name}
+              </Typography>
+              <Typography>{phone}</Typography>
 
               <Divider sx={{ my: 1 }} />
+
               <Box display="flex" justifyContent="end">
                 <NextLink href="/cart" passHref>
                   <Link underline="always">Editar</Link>
                 </NextLink>
               </Box>
-              {/* Order Summary */}
+
               <OrderSummary />
 
-              <Box sx={{ mt: 2 }}>
+              <Box sx={{ mt: 3 }}>
                 <Button color="secondary" className="circular-btn" fullWidth>
                   Confirmar Orden
                 </Button>

@@ -9,6 +9,20 @@ export interface CartState {
   subTotal: number;
   tax: number;
   total: number;
+  isLoaded: boolean;
+
+  shippingAddress?: ShippingAddress;
+}
+
+export interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  address: string;
+  address2?: string;
+  zip: string;
+  city: string;
+  country: string;
+  phone: string;
 }
 
 const CART_INITIAL_STATE: CartState = {
@@ -17,6 +31,7 @@ const CART_INITIAL_STATE: CartState = {
   subTotal: 0,
   tax: 0,
   total: 0,
+  isLoaded: false,
 };
 
 export const CartProvider: FC = ({ children }) => {
@@ -36,6 +51,26 @@ export const CartProvider: FC = ({ children }) => {
       dispatch({
         type: "[Cart] - LoadCart from cookies | storage",
         payload: [],
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (Cookies.get("firstName")) {
+      const shippingAddress = {
+        firstName: Cookies.get("firstName") || "",
+        lastName: Cookies.get("lastName") || "",
+        address: Cookies.get("address") || "",
+        address2: Cookies.get("address2") || "",
+        zip: Cookies.get("zip") || "",
+        city: Cookies.get("city") || "",
+        country: Cookies.get("country") || "",
+        phone: Cookies.get("phone") || "",
+      };
+
+      dispatch({
+        type: "[Cart] - LoadAddress from Cookies",
+        payload: shippingAddress,
       });
     }
   }, []);
@@ -113,6 +148,19 @@ export const CartProvider: FC = ({ children }) => {
     });
   };
 
+  const updateAddress = (address: ShippingAddress) => {
+    Cookies.set("firstName", address.firstName);
+    Cookies.set("lastName", address.lastName);
+    Cookies.set("address", address.address);
+    Cookies.set("address2", address.address2 || "");
+    Cookies.set("zip", address.zip);
+    Cookies.set("city", address.city);
+    Cookies.set("country", address.country);
+    Cookies.set("phone", address.phone);
+
+    dispatch({ type: '[Cart] - Update Address', payload: address });
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -121,6 +169,7 @@ export const CartProvider: FC = ({ children }) => {
         addProductToCart,
         updateCartQuantity,
         removeCartProduct,
+        updateAddress,
       }}
     >
       {children}
