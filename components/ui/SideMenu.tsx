@@ -5,6 +5,7 @@ import { Box, Divider, Drawer, List, ListItem } from "@mui/material";
 import { ListItemIcon, ListItemText, ListSubheader } from "@mui/material";
 import {
   ConfirmationNumberOutlined,
+  DashboardOutlined,
   EscalatorWarningOutlined,
 } from "@mui/icons-material";
 import { CategoryOutlined, FemaleOutlined } from "@mui/icons-material";
@@ -140,11 +141,18 @@ export const SideMenu = () => {
             </ListItem>
           )}
 
+          {/* Admin */}
           {user?.role === "admin" && (
             <>
-              {/* Admin */}
               <Divider />
               <ListSubheader>Admin Panel</ListSubheader>
+
+              <ListItem button onClick={() => navigateTo("/admin/")}>
+                <ListItemIcon>
+                  <DashboardOutlined />
+                </ListItemIcon>
+                <ListItemText primary={"Dashboard"} />
+              </ListItem>
 
               <ListItem button>
                 <ListItemIcon>
@@ -152,14 +160,14 @@ export const SideMenu = () => {
                 </ListItemIcon>
                 <ListItemText primary={"Productos"} />
               </ListItem>
-              <ListItem button>
+              <ListItem button onClick={() => navigateTo("/admin/orders")}>
                 <ListItemIcon>
                   <ConfirmationNumberOutlined />
                 </ListItemIcon>
                 <ListItemText primary={"Ordenes"} />
               </ListItem>
 
-              <ListItem button>
+              <ListItem button onClick={() => navigateTo("/admin/users")}>
                 <ListItemIcon>
                   <AdminPanelSettings />
                 </ListItemIcon>
